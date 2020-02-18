@@ -1,0 +1,1221 @@
+openapi: 3.0.0
+info:
+  title: dformapi.v1
+  version: '1.0'
+  description: dForm REST API
+  contact:
+    name: PosAm
+    url: 'http://www.posam.sk'
+tags:
+  - name: eform
+    description: Správa eForms
+servers:
+  - url: 'http://localhost:3100'
+paths:
+  /eforms:
+    get:
+      summary: Zoznam všetkých eform-ov uložených v module dForm
+      tags:
+        - eform
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  title: eForm
+                  type: object
+                  x-examples:
+                    example-1: {}
+                  properties:
+                    id:
+                      type: string
+                      description: jednoznačný identifikátor eFormu
+                    tenantId:
+                      type: string
+                      description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                      enum:
+                        - MFSR
+                        - MPSVR
+                        - IUVENTA
+                    name:
+                      type: string
+                      description: názov eFormu
+                    created:
+                      type: string
+                      format: date-time
+                      description: dátum vytvorenia eFormu
+                      nullable: true
+                    updated:
+                      type: string
+                      format: date-time
+                      description: dátum zmeny eFormu
+                      nullable: true
+                    version:
+                      type: string
+                      description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                    validFrom:
+                      type: string
+                      format: date-time
+                      description: dátum od ktorého je eForm platný
+                    validTo:
+                      type: string
+                      format: date-time
+                      description: dátum do ktorého je eForm platný
+                      nullable: true
+                    publishedDate:
+                      type: string
+                      format: date-time
+                      description: dátum kedy bol publikovaný eForm
+                      nullable: true
+                    approvedUPVSDate:
+                      type: string
+                      format: date-time
+                      description: dátum od ktorého je eForm schválený na ÚPVS
+                      nullable: true
+                    xml:
+                      type: string
+                      format: byte
+                      description: prázdne dátove XML (zakódované Base64)
+                    xsd:
+                      type: string
+                      format: byte
+                      description: XSD schéma (zakódované Base64)
+                    xsltTxt:
+                      type: string
+                      format: byte
+                      description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                    xsltHtml:
+                      type: string
+                      format: byte
+                      description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                    xsltPdf:
+                      type: string
+                      format: byte
+                      description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                    targetNamespace:
+                      type: string
+                      description: targetNamespace eFormu
+                  required:
+                    - id
+                    - tenantId
+                    - name
+                    - version
+                    - validFrom
+                    - xml
+                    - xsd
+                    - xsltTxt
+                    - xsltHtml
+                    - xsltPdf
+                    - targetNamespace
+              examples: {}
+        '500':
+          description: Unexpected error occured
+      operationId: get-eforms
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: tenantId
+          description: Ak zadané vráti len záznamy pre daného tenanta.
+        - schema:
+            type: boolean
+          in: query
+          name: published
+          description: 'Ak true vrátia sa len záznamy, ktoré boli publikované - majú vyplnený dátum publikovania. AK false vráti len  záznamy, ktoré nemajú vyplnený dátum publikovania. Ak parameter nie je zadaný vráti záznamy aj s vyplneným a aj s nevyplneným dátumom publikovania.'
+        - schema:
+            type: boolean
+          in: query
+          name: approved
+          description: 'Ak true vrátia sa len záznamy, ktoré boli schválené na ÚPVS - majú vyplnený dátum schválenia. AK false vráti len  záznamy, ktoré nemajú vyplnený dátum schválenia. Ak parameter nie je zadaný vráti záznamy aj s vyplneným a aj s nevyplneným dátumom schválenia.'
+        - schema:
+            type: string
+          in: query
+          name: searchString
+          description: Ak zadané vráti sadu eForm ktoré obsahujú hľadaný text v názve.
+      description: 'Vráti zoznam eform-ov, zoznam je možné filtrovať pomocou nepovinných query parametrov. Ak je zadaných viac parametrov, platí že vrátené záznamy vyhovujú všetkým zadaným podmienkam súčasne.'
+    post:
+      summary: Vytvorenie nového záznamu eform
+      operationId: post-eforms
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                title: eForm
+                type: object
+                x-examples:
+                  example-1: {}
+                properties:
+                  id:
+                    type: string
+                    description: jednoznačný identifikátor eFormu
+                  tenantId:
+                    type: string
+                    description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                    enum:
+                      - MFSR
+                      - MPSVR
+                      - IUVENTA
+                  name:
+                    type: string
+                    description: názov eFormu
+                  created:
+                    type: string
+                    format: date-time
+                    description: dátum vytvorenia eFormu
+                    nullable: true
+                  updated:
+                    type: string
+                    format: date-time
+                    description: dátum zmeny eFormu
+                    nullable: true
+                  version:
+                    type: string
+                    description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                  validFrom:
+                    type: string
+                    format: date-time
+                    description: dátum od ktorého je eForm platný
+                  validTo:
+                    type: string
+                    format: date-time
+                    description: dátum do ktorého je eForm platný
+                    nullable: true
+                  publishedDate:
+                    type: string
+                    format: date-time
+                    description: dátum kedy bol publikovaný eForm
+                    nullable: true
+                  approvedUPVSDate:
+                    type: string
+                    format: date-time
+                    description: dátum od ktorého je eForm schválený na ÚPVS
+                    nullable: true
+                  xml:
+                    type: string
+                    format: byte
+                    description: prázdne dátove XML (zakódované Base64)
+                  xsd:
+                    type: string
+                    format: byte
+                    description: XSD schéma (zakódované Base64)
+                  xsltTxt:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                  xsltHtml:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                  xsltPdf:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                  targetNamespace:
+                    type: string
+                    description: targetNamespace eFormu
+                required:
+                  - id
+                  - tenantId
+                  - name
+                  - version
+                  - validFrom
+                  - xml
+                  - xsd
+                  - xsltTxt
+                  - xsltHtml
+                  - xsltPdf
+                  - targetNamespace
+              examples:
+                example-1:
+                  value:
+                    id: XSFSFAF
+                    tenantId: MFSR
+                    name: Žiadosť o dotáciu
+                    targetNamespace: 'http://schemas.gov.sk/form/MFSR.GrantApplication/1.0'
+                    created: '2020-02-10T11:35:22Z'
+                    updated: null
+                    version: '1.0'
+                    validFrom: '2020-02-10T11:35:22Z'
+                    validTo: null
+                    publishedDate: null
+                    approvedUPVSDate: null
+                    xml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsd: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltTxt: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltHtml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltPdf: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+        '400':
+          description: Bad Request
+        '500':
+          description: Unexpected Error
+      description: Vytvorí nový eForm objekt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: eForm create/update
+              type: object
+              x-examples:
+                example-1: {}
+              properties:
+                tenantId:
+                  type: string
+                  description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                  enum:
+                    - MFSR
+                    - MPSVR
+                    - IUVENTA
+                name:
+                  type: string
+                  description: názov eFormu
+                version:
+                  type: string
+                  description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                validFrom:
+                  type: string
+                  format: date-time
+                  description: dátum od ktorého je eForm platný
+                validTo:
+                  type: string
+                  format: date-time
+                  description: dátum do ktorého je eForm platný
+                  nullable: true
+                xml:
+                  type: string
+                  format: byte
+                  description: prázdne dátove XML (zakódované Base64)
+                xsd:
+                  type: string
+                  format: byte
+                  description: XSD schéma (zakódované Base64)
+                xsltTxt:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                xsltHtml:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                xsltPdf:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                targetNamespace:
+                  type: string
+                  description: targetNamespace eFormu
+              required:
+                - tenantId
+                - name
+                - version
+                - validFrom
+                - xml
+                - xsd
+                - xsltTxt
+                - xsltHtml
+                - xsltPdf
+                - targetNamespace
+            examples:
+              example-1:
+                value:
+                  tenantId: MFSR
+                  name: Žiadosť o dotáciu
+                  targetNamespace: 'http://schemas.gov.sk/form/MFSR.GrantApplication/1.0'
+                  version: '1.0'
+                  validFrom: '2020-02-10T11:35:22Z'
+                  validTo: null
+                  xml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                  xsd: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                  xsltTxt: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                  xsltHtml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                  xsltPdf: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+        description: new eForm
+      tags:
+        - eform
+  '/eforms/{eformId}':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    get:
+      summary: Informácie o konkrétnom eForm-e
+      tags:
+        - eform
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: eForm
+                type: object
+                x-examples:
+                  example-1: {}
+                properties:
+                  id:
+                    type: string
+                    description: jednoznačný identifikátor eFormu
+                  tenantId:
+                    type: string
+                    description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                    enum:
+                      - MFSR
+                      - MPSVR
+                      - IUVENTA
+                  name:
+                    type: string
+                    description: názov eFormu
+                  created:
+                    type: string
+                    format: date-time
+                    description: dátum vytvorenia eFormu
+                    nullable: true
+                  updated:
+                    type: string
+                    format: date-time
+                    description: dátum zmeny eFormu
+                    nullable: true
+                  version:
+                    type: string
+                    description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                  validFrom:
+                    type: string
+                    format: date-time
+                    description: dátum od ktorého je eForm platný
+                  validTo:
+                    type: string
+                    format: date-time
+                    description: dátum do ktorého je eForm platný
+                    nullable: true
+                  publishedDate:
+                    type: string
+                    format: date-time
+                    description: dátum kedy bol publikovaný eForm
+                    nullable: true
+                  approvedUPVSDate:
+                    type: string
+                    format: date-time
+                    description: dátum od ktorého je eForm schválený na ÚPVS
+                    nullable: true
+                  xml:
+                    type: string
+                    format: byte
+                    description: prázdne dátove XML (zakódované Base64)
+                  xsd:
+                    type: string
+                    format: byte
+                    description: XSD schéma (zakódované Base64)
+                  xsltTxt:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                  xsltHtml:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                  xsltPdf:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                  targetNamespace:
+                    type: string
+                    description: targetNamespace eFormu
+                required:
+                  - id
+                  - tenantId
+                  - name
+                  - version
+                  - validFrom
+                  - xml
+                  - xsd
+                  - xsltTxt
+                  - xsltHtml
+                  - xsltPdf
+                  - targetNamespace
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      operationId: get-eforms-by-eformId
+      description: Vráti informácie konkrétneho eForm-u
+    put:
+      summary: Zmena údajov eForm
+      operationId: put-eforms-eformId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: eForm create/update
+              type: object
+              x-examples:
+                example-1: {}
+              properties:
+                tenantId:
+                  type: string
+                  description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                  enum:
+                    - MFSR
+                    - MPSVR
+                    - IUVENTA
+                name:
+                  type: string
+                  description: názov eFormu
+                version:
+                  type: string
+                  description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                validFrom:
+                  type: string
+                  format: date-time
+                  description: dátum od ktorého je eForm platný
+                validTo:
+                  type: string
+                  format: date-time
+                  description: dátum do ktorého je eForm platný
+                  nullable: true
+                xml:
+                  type: string
+                  format: byte
+                  description: prázdne dátove XML (zakódované Base64)
+                xsd:
+                  type: string
+                  format: byte
+                  description: XSD schéma (zakódované Base64)
+                xsltTxt:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                xsltHtml:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                xsltPdf:
+                  type: string
+                  format: byte
+                  description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                targetNamespace:
+                  type: string
+                  description: targetNamespace eFormu
+              required:
+                - tenantId
+                - name
+                - version
+                - validFrom
+                - xml
+                - xsd
+                - xsltTxt
+                - xsltHtml
+                - xsltPdf
+                - targetNamespace
+      description: Umožňuje zmeniť údaje pre daný eForm
+      tags:
+        - eform
+    delete:
+      summary: Vymaže záznam daného eform-u
+      operationId: delete-eforms-eformId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      tags:
+        - eform
+      description: 'Ak ma záznam vyplnený dátum schválenia v ÚPVS neumožní ho zmazať vráti chybovú hlášku. Ak tento dátum nie je vyplnený, metóda zmaže záznam daného e-formu'
+  '/eforms/{eformId}/download':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    get:
+      summary: Stiahnutie eForm súborov
+      tags:
+        - eform
+      operationId: get-eforms-eformId-download
+      description: 'Vytvorí jeden zip súbor, v ktorom sú všetky eForm transformácie, XSD a prázdne XML a vráti ho v binárnom tvare (octet-stream).'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+                properties: {}
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+  '/eforms/{eformId}/validatexml':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    post:
+      summary: Validácia dátového XML
+      operationId: post-eforms-eformId-validate
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      description: Validuje vstupný súbor vo formáte XML so XSD schémou eformu.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputFile
+              type: object
+              properties:
+                fileContent:
+                  type: string
+                  format: byte
+                  description: súbor na spracovanie (zakodovaný Base64)
+        description: dátove XML
+      tags:
+        - eform
+  '/eforms/{eformId}/transformxml':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    post:
+      summary: Transformácia dátového XML na požadovaný typ zobrazenia.
+      operationId: post-eforms-eformId-transformxml-outputFormat
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: output
+          description: 'output format TXT, HTML, PDF'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputFile
+              type: object
+              properties:
+                fileContent:
+                  type: string
+                  format: byte
+                  description: súbor na spracovanie (zakodovaný Base64)
+      description: 'Transformuje vstupné dátové XML, pomocou XSLT transformácii eformu na výsledný TXT, HTML , PDF súbor.'
+      tags:
+        - eform
+  /eforms/generatefiles:
+    post:
+      summary: Vytvorenie transformácií a súborov potrebných pre ÚPVS
+      operationId: post-transform2files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+        '400':
+          description: Bad Request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputPrmNewForm
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: názov eFormu
+                tenantId:
+                  type: string
+                  description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                  enum:
+                    - MFSR
+                    - IUVENTA
+                    - MPSVR
+                xsd:
+                  type: string
+                  format: byte
+                  description: XSD schéma sú v nej aj popisky k poliam (zakódované Base64)
+                html:
+                  type: string
+                  format: byte
+                  description: HTML je v ňom zachytené umiestnenie informácií (zakódované Base64)
+                validFrom:
+                  type: string
+                  format: date-time
+                  description: dátum od ktorého je eForm platný
+                validTo:
+                  type: string
+                  format: date-time
+                  description: dátum do ktorého je eForm platný
+                  nullable: true
+                targetNamespace:
+                  type: string
+                  description: targetNamespace eFormu
+              required:
+                - name
+                - tenantId
+                - xsd
+                - html
+                - validFrom
+                - targetNamespace
+      description: |
+        Vytvorí všetky potrebné súbory na zaregistrovanie eFormu v ÚPVS, vstupom je XSD a HTML. Vytvorí jeden zip súbor, v ktorom sú všetky eForm transformácie XSD a prázdne XML a umožní tento súbor stiahnuť.
+      tags:
+        - eform
+    parameters: []
+  /eforms/generate:
+    post:
+      summary: Vytvorenie transformácií a súborov potrebných na vytvorenie eForm
+      operationId: post-transform
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: eForm create/update
+                type: object
+                x-examples:
+                  example-1: {}
+                properties:
+                  tenantId:
+                    type: string
+                    description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                    enum:
+                      - MFSR
+                      - MPSVR
+                      - IUVENTA
+                  name:
+                    type: string
+                    description: názov eFormu
+                  version:
+                    type: string
+                    description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+                  validFrom:
+                    type: string
+                    format: date-time
+                    description: dátum od ktorého je eForm platný
+                  validTo:
+                    type: string
+                    format: date-time
+                    description: dátum do ktorého je eForm platný
+                    nullable: true
+                  xml:
+                    type: string
+                    format: byte
+                    description: prázdne dátove XML (zakódované Base64)
+                  xsd:
+                    type: string
+                    format: byte
+                    description: XSD schéma (zakódované Base64)
+                  xsltTxt:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+                  xsltHtml:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+                  xsltPdf:
+                    type: string
+                    format: byte
+                    description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+                  targetNamespace:
+                    type: string
+                    description: targetNamespace eFormu
+                required:
+                  - tenantId
+                  - name
+                  - version
+                  - validFrom
+                  - xml
+                  - xsd
+                  - xsltTxt
+                  - xsltHtml
+                  - xsltPdf
+                  - targetNamespace
+              examples:
+                example-1:
+                  value:
+                    tenantId: MFSR
+                    name: Žiadosť o dotáciu
+                    targetNamespace: 'http://schemas.gov.sk/form/MFSR.GrantApplication/1.0'
+                    version: '1.0'
+                    validFrom: '2020-02-10T11:35:22Z'
+                    validTo: null
+                    xml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsd: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltTxt: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltHtml: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+                    xsltPdf: c3RyaW5nQmFzZTY0ZW5jb2RlZA==
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '500':
+          description: Unexpected Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputPrmNewForm
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: názov eFormu
+                tenantId:
+                  type: string
+                  description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+                  enum:
+                    - MFSR
+                    - IUVENTA
+                    - MPSVR
+                xsd:
+                  type: string
+                  format: byte
+                  description: XSD schéma sú v nej aj popisky k poliam (zakódované Base64)
+                html:
+                  type: string
+                  format: byte
+                  description: HTML je v ňom zachytené umiestnenie informácií (zakódované Base64)
+                validFrom:
+                  type: string
+                  format: date-time
+                  description: dátum od ktorého je eForm platný
+                validTo:
+                  type: string
+                  format: date-time
+                  description: dátum do ktorého je eForm platný
+                  nullable: true
+                targetNamespace:
+                  type: string
+                  description: targetNamespace eFormu
+              required:
+                - name
+                - tenantId
+                - xsd
+                - html
+                - validFrom
+                - targetNamespace
+            examples:
+              example-1: {}
+      description: 'Vytvorí všetky potrebné súbory na zaregistrovanie eFormu v ÚPVS, vstupom je XSD a HTML. Výsledok vráti ako JSON, pomocou ktorého ide vytvoriť nový záznam v module dForm.'
+      tags:
+        - eform
+    parameters: []
+  '/eforms/{eformId}/updatepublished':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    put:
+      summary: Nastavie dátumu publikácie
+      operationId: post-eforms-eformId-updatepublished
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputDate
+              type: object
+              properties:
+                datetime:
+                  type: string
+                  description: dátum
+                  format: date-time
+            examples:
+              example-1:
+                value:
+                  datetime: '2020-02-10T11:32:35Z'
+      tags:
+        - eform
+      description: Umožní nastaviť dátum publikácie
+  '/eforms/{eformId}/updateapproved':
+    parameters:
+      - schema:
+          type: string
+        name: eformId
+        in: path
+        required: true
+    put:
+      summary: Nastavenie dátumu schválenia eFormu v ÚPVS
+      operationId: post-eforms-eformId-updateapproved
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                title: error.v1.yaml
+                required:
+                  - code
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                description: A standard error object.
+                type: object
+        '404':
+          description: Not Found
+        '500':
+          description: Unexpected Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: inputDate
+              type: object
+              properties:
+                datetime:
+                  type: string
+                  description: dátum
+                  format: date-time
+            examples:
+              example-1:
+                value:
+                  datetime: '2020-02-10T11:32:35Z'
+        description: ''
+      tags:
+        - eform
+      description: Umožní nastaviť dátum schválenia v ÚPVS
+components:
+  schemas:
+    eform.v1.yaml:
+      title: eForm
+      type: object
+      x-examples:
+        example-1: {}
+      properties:
+        id:
+          type: string
+          description: jednoznačný identifikátor eFormu
+        tenantId:
+          type: string
+          description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+          enum:
+            - MFSR
+            - MPSVR
+            - IUVENTA
+        name:
+          type: string
+          description: názov eFormu
+        created:
+          type: string
+          format: date-time
+          description: dátum vytvorenia eFormu
+          nullable: true
+        updated:
+          type: string
+          format: date-time
+          description: dátum zmeny eFormu
+          nullable: true
+        version:
+          type: string
+          description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+        validFrom:
+          type: string
+          format: date-time
+          description: dátum od ktorého je eForm platný
+        validTo:
+          type: string
+          format: date-time
+          description: dátum do ktorého je eForm platný
+          nullable: true
+        publishedDate:
+          type: string
+          format: date-time
+          description: dátum kedy bol publikovaný eForm
+          nullable: true
+        approvedUPVSDate:
+          type: string
+          format: date-time
+          description: dátum od ktorého je eForm schválený na ÚPVS
+          nullable: true
+        xml:
+          type: string
+          format: byte
+          description: prázdne dátove XML (zakódované Base64)
+        xsd:
+          type: string
+          format: byte
+          description: XSD schéma (zakódované Base64)
+        xsltTxt:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+        xsltHtml:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+        xsltPdf:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+        targetNamespace:
+          type: string
+          description: targetNamespace eFormu
+      required:
+        - id
+        - tenantId
+        - name
+        - version
+        - validFrom
+        - xml
+        - xsd
+        - xsltTxt
+        - xsltHtml
+        - xsltPdf
+        - targetNamespace
+    error.v1.yaml:
+      title: error.v1.yaml
+      required:
+        - code
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      description: A standard error object.
+      type: object
+    inputPrmNewForm:
+      title: inputPrmNewForm
+      type: object
+      properties:
+        name:
+          type: string
+          description: názov eFormu
+        tenantId:
+          type: string
+          description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+          enum:
+            - MFSR
+            - IUVENTA
+            - MPSVR
+        xsd:
+          type: string
+          format: byte
+          description: XSD schéma sú v nej aj popisky k poliam (zakódované Base64)
+        html:
+          type: string
+          format: byte
+          description: HTML je v ňom zachytené umiestnenie informácií (zakódované Base64)
+        validFrom:
+          type: string
+          format: date-time
+          description: dátum od ktorého je eForm platný
+        validTo:
+          type: string
+          format: date-time
+          description: dátum do ktorého je eForm platný
+          nullable: true
+        targetNamespace:
+          type: string
+          description: targetNamespace eFormu
+      required:
+        - name
+        - tenantId
+        - xsd
+        - html
+        - validFrom
+        - targetNamespace
+    inputFile:
+      title: inputFile
+      type: object
+      properties:
+        fileContent:
+          type: string
+          format: byte
+          description: súbor na spracovanie (zakodovaný Base64)
+    inputDate:
+      title: inputDate
+      type: object
+      properties:
+        datetime:
+          type: string
+          description: dátum
+          format: date-time
+    createOrUpdateeform.v1.yaml:
+      title: eForm create/update
+      type: object
+      x-examples:
+        example-1: {}
+      properties:
+        tenantId:
+          type: string
+          description: 'jednoznačný identifikátor zdroja MFSR, MPSVR, Iuventa'
+          enum:
+            - MFSR
+            - MPSVR
+            - IUVENTA
+        name:
+          type: string
+          description: názov eFormu
+        version:
+          type: string
+          description: verzia eFormu vo formate X.Y (kde X-major Y-minor verzia)
+        validFrom:
+          type: string
+          format: date-time
+          description: dátum od ktorého je eForm platný
+        validTo:
+          type: string
+          format: date-time
+          description: dátum do ktorého je eForm platný
+          nullable: true
+        xml:
+          type: string
+          format: byte
+          description: prázdne dátove XML (zakódované Base64)
+        xsd:
+          type: string
+          format: byte
+          description: XSD schéma (zakódované Base64)
+        xsltTxt:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na text, (zakódované Base64)'
+        xsltHtml:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na html, (zakódované Base64)'
+        xsltPdf:
+          type: string
+          format: byte
+          description: 'XSLT transformácia dátového XML na PDF, (zakódované Base64)'
+        targetNamespace:
+          type: string
+          description: targetNamespace eFormu
+      required:
+        - tenantId
+        - name
+        - version
+        - validFrom
+        - xml
+        - xsd
+        - xsltTxt
+        - xsltHtml
+        - xsltPdf
+        - targetNamespace
+  securitySchemes: {}
